@@ -1,9 +1,8 @@
 import time
-import requests
 import telebot, datetime, csv, types
 import csv
 import openpyxl
-import xlwings as xw
+import os
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
 
@@ -111,9 +110,10 @@ def process_comment(message):
 ###########################################################################################
 
 def write_data_to_file(spend_entry, message):
-    with open('output.csv', mode='r+', encoding='utf-8', newline='') as file:
-        reader = csv.reader(file, delimiter=';')
-        max_number = 0
+    with open('output.csv', mode='w', encoding='utf-8', newline='') as file:
+        writer = csv.writer(file, delimiter=';', quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(spend_entry)
+        file.close()
 
         def write_data_to_excel():
             # Открываем файл CSV и читаем его содержимое
@@ -143,20 +143,10 @@ def write_data_to_file(spend_entry, message):
             # Сохраняем изменения в книге Excel
             workbook.save('Budget.xlsx')
 
-        for row in reader:
-            try:
-                number = int(row[0])
-                if number > max_number:
-                    max_number = number
-            except ValueError:
-                pass
-        next_number = max_number + 1
-        writer = csv.writer(file, delimiter=';', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow([next_number] + spend_entry)
-        file.close()
         try:
             write_data_to_excel()
             bot.send_message(message.chat.id, "Спасибо, ваша трата успешно записана! Выберите следующее действие.", reply_markup=keyboard)
+            os.remove('output.csv')
             user_global_state[message.chat.id] = {'step': 'start'}
             print(user_global_state)
         except PermissionError:
