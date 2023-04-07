@@ -166,7 +166,8 @@ def process_comment(message):
         return
     comment = message.text
     now = datetime.datetime.now()
-    spend_entry = [user_state['category'], user_state['source'], int(user_state['amount']), now.strftime("%d/%m"), comment]
+    data = now.strftime("%d-%b")
+    spend_entry = [user_state['category'], user_state['source'], int(user_state['amount']), data, comment]
     write_data_to_file(spend_entry, message)
     user_global_state[message.chat.id] = {'step': 'start'}
 
@@ -204,11 +205,6 @@ def write_data_to_file(spend_entry, message):
                     else:
                         worksheet.cell(row=last_row, column=col_index + 17, value=cell_value)
                 last_row += 1
-            # for row in csv_data:
-            #     row_data = row[0].split(';')
-            #     for col_index, cell_value in enumerate(row_data):
-            #         worksheet.cell(row=last_row, column=col_index + 17, value=cell_value)
-            #     last_row += 1
 
             # Сохраняем изменения в книге Excel
             workbook.save('Budget.xlsx')
@@ -227,13 +223,6 @@ def check_availability(message):
     except PermissionError:
         bot.send_message(message.chat.id, "Файл открыт другой альпаськой, попробуй позже!")
         user_global_state[message.chat.id] = {'step': 'start'}
-
-def is_number(n):
-    try:
-        float(n)
-    except ValueError:
-        return False
-    return True
 
 ###########################################################################################
 
