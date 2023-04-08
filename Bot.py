@@ -300,5 +300,5 @@ while attempt_count < max_attempts:
         print(f"Ошибка: {e}. Перезапуск через 5 секунд.")
         time.sleep(5)
         attempt_count += 1
-*
+
 print("Достигнуто максимальное количество попыток. Скрипт остановлен.")
