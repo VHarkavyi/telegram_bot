@@ -79,7 +79,7 @@ def start_handler(message):
 # Check balance
 
 @bot.message_handler(func=lambda message: message.text == 'Баланс')
-def balance_handler(message):
+def get_balance(message):
     if check_availability(message) == True:
         user_global_state[message.chat.id] = {'step': 'balance'}
         print(user_global_state)
@@ -117,7 +117,7 @@ def balance_handler(message):
 #################################################################################################
 #   Add spends
 @bot.message_handler(func=lambda message: message.text == 'Добавить трату')
-def choose_category(message):
+def add_spend(message):
     if check_availability(message) == True:
         user_global_state[message.chat.id] = {'step': 'select_category'}
         print(user_global_state)
@@ -160,7 +160,7 @@ def enter_amount(message):
         bot.send_message(message.chat.id, "Ошибка! Введите число.")
 
 @bot.message_handler(func=lambda message: message.content_type == 'text' and user_global_state.get(message.chat.id, {}).get('step') == 'enter_comment')
-def process_comment(message):
+def add_comment(message):
     user_state = user_global_state.get(message.chat.id)
     if not user_state or user_state['step'] != 'enter_comment':
         return
