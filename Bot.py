@@ -200,14 +200,14 @@ def add_comment(message):
     elif message.text == 'Пропустить':
         comment = ' '
         now = datetime.datetime.now()
-        data = now.strftime("%d-%b")
+        data = now.strftime("%d/%b")
         spend_entry = [user_state['category'], user_state['source'], int(user_state['amount']), data, comment]
         write_data_to_file(spend_entry, message)
         user_global_state[message.chat.id] = {'step': 'start'}
     else:
         comment = message.text
         now = datetime.datetime.now()
-        data = now.strftime("%d-%b")
+        data = now.strftime("%d/%b")
         spend_entry = [user_state['category'], user_state['source'], int(user_state['amount']), data, comment]
         write_data_to_file(spend_entry, message)
         user_global_state[message.chat.id] = {'step': 'start'}
@@ -230,7 +230,9 @@ def write_data_to_file(spend_entry, message):
             workbook = openpyxl.load_workbook('Budget.xlsx')
 
             # Получаем нужный лист
-            worksheet = workbook['Apr 23']
+            now = datetime.datetime.now()
+            data = now.strftime("%b %y")
+            worksheet = workbook[data]
 
             # Находим последнюю заполненную строку в таблице
             last_row = 5
