@@ -8,7 +8,8 @@ from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemo
 
 max_attempts = 5
 attempt_count = 0
-budget_file = "C:/Users/Administrator/OneDrive/My files"
+#budget_file = "C:/Users/Administrator/OneDrive/My files/Budget.xlsx"
+budget_file = "C:/Users/Administrator/OneDrive/My files/Budget.xlsx"
 
 while attempt_count < max_attempts:
     try:
@@ -219,14 +220,14 @@ while attempt_count < max_attempts:
                 comment = ' '
                 now = datetime.datetime.now()
                 data = now.strftime("%d/%m")
-                spend_entry = [user_state['category'], user_state['source'], int(user_state['amount']), data, comment]
+                spend_entry = [user_state['category'], user_state['source'], user_state['amount'], data, comment]
                 write_data_to_file(spend_entry, message)
                 user_global_state[message.chat.id] = {'step': 'start'}
             else:
                 comment = message.text
                 now = datetime.datetime.now()
                 data = now.strftime("%d/%m")
-                spend_entry = [user_state['category'], user_state['source'], int(user_state['amount']), data, comment]
+                spend_entry = [user_state['category'], user_state['source'], user_state['amount'], data, comment]
                 write_data_to_file(spend_entry, message)
                 user_global_state[message.chat.id] = {'step': 'start'}
 
