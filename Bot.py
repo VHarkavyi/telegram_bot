@@ -8,6 +8,7 @@ from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemo
 
 max_attempts = 5
 attempt_count = 0
+budget_file = "C:/Users/Administrator/OneDrive/My files"
 
 while attempt_count < max_attempts:
     try:
@@ -110,7 +111,7 @@ while attempt_count < max_attempts:
                     now = datetime.datetime.now()
                     data = now.strftime("%b %y")
 
-                    df = pd.read_excel('Budget.xlsx', sheet_name=data, header=None)
+                    df = pd.read_excel(budget_file, sheet_name=data, header=None)
                     # Получаем значение ячейки
                     value_mblack = df.at[23, 8]
                     value_mwhite = round(df.at[23, 9], 2)
@@ -246,7 +247,7 @@ while attempt_count < max_attempts:
                         print(csv_data)
 
                     # Открываем книгу Excel
-                    workbook = openpyxl.load_workbook('Budget.xlsx')
+                    workbook = openpyxl.load_workbook(budget_file)
 
                     # Получаем нужный лист
                     now = datetime.datetime.now()
@@ -269,7 +270,7 @@ while attempt_count < max_attempts:
                         last_row += 1
 
                     # Сохраняем изменения в книге Excel
-                    workbook.save('Budget.xlsx')
+                    workbook.save(budget_file)
                     workbook.close()
 
                 write_data_to_excel()
@@ -282,8 +283,8 @@ while attempt_count < max_attempts:
 
         def check_availability(message):
             try:
-                workbook = openpyxl.load_workbook('Budget.xlsx')
-                workbook.save('Budget.xlsx')
+                workbook = openpyxl.load_workbook(budget_file)
+                workbook.save(budget_file)
                 workbook.close()
                 return True
             except PermissionError:
