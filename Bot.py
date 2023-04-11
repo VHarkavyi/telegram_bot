@@ -8,8 +8,8 @@ from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemo
 
 max_attempts = 5
 attempt_count = 0
+budget_file = "C:/Users/VHarkavyi/OneDrive/My files/Budget.xlsx"
 #budget_file = "C:/Users/Administrator/OneDrive/My files/Budget.xlsx"
-budget_file = "C:/Users/Administrator/OneDrive/My files/Budget.xlsx"
 
 while attempt_count < max_attempts:
     try:
@@ -144,9 +144,7 @@ while attempt_count < max_attempts:
                 bot.send_message(message.chat.id, 'Выберите категорию: ', reply_markup=keyboard_category)
 
 
-        @bot.message_handler(
-            func=lambda message: message.content_type == 'text' and user_global_state.get(message.chat.id, {}).get(
-                'step') == 'select_category')
+        @bot.message_handler(func=lambda message: message.content_type == 'text' and user_global_state.get(message.chat.id, {}).get('step') == 'select_category')
         def select_category(message):
             user_state = user_global_state.get(message.chat.id)
             if not user_state or user_state['step'] != 'select_category':
@@ -163,9 +161,7 @@ while attempt_count < max_attempts:
                 bot.send_message(message.chat.id, 'Выберите источник: ', reply_markup=keyboard_source)
 
 
-        @bot.message_handler(
-            func=lambda message: message.content_type == 'text' and user_global_state.get(message.chat.id, {}).get(
-                'step') == 'select_source')
+        @bot.message_handler(func=lambda message: message.content_type == 'text' and user_global_state.get(message.chat.id, {}).get('step') == 'select_source')
         def select_source(message):
             user_state = user_global_state.get(message.chat.id)
             if not user_state or user_state['step'] != 'select_source':
@@ -183,9 +179,7 @@ while attempt_count < max_attempts:
                 bot.send_message(message.chat.id, 'Введите сумму:', reply_markup=keyboard_back_to_start)
 
 
-        @bot.message_handler(
-            func=lambda message: message.content_type == 'text' and user_global_state.get(message.chat.id, {}).get(
-                'step') == 'enter_amount')
+        @bot.message_handler(func=lambda message: message.content_type == 'text' and user_global_state.get(message.chat.id, {}).get('step') == 'enter_amount')
         def enter_amount(message):
             user_state = user_global_state.get(message.chat.id)
             if not user_state or user_state['step'] != 'enter_amount':
@@ -205,9 +199,7 @@ while attempt_count < max_attempts:
                     bot.send_message(message.chat.id, "Ошибка! Введите число.")
 
 
-        @bot.message_handler(
-            func=lambda message: message.content_type == 'text' and user_global_state.get(message.chat.id, {}).get(
-                'step') == 'enter_comment')
+        @bot.message_handler(func=lambda message: message.content_type == 'text' and user_global_state.get(message.chat.id, {}).get('step') == 'enter_comment')
         def add_comment(message):
             user_state = user_global_state.get(message.chat.id)
             if not user_state or user_state['step'] != 'enter_comment':
@@ -221,66 +213,50 @@ while attempt_count < max_attempts:
                 now = datetime.datetime.now()
                 data = now.strftime("%d/%m")
                 spend_entry = [user_state['category'], user_state['source'], user_state['amount'], data, comment]
-                write_data_to_file(spend_entry, message)
+                write_data_to_excel(spend_entry, message)
                 user_global_state[message.chat.id] = {'step': 'start'}
+                print(user_global_state)
             else:
                 comment = message.text
                 now = datetime.datetime.now()
                 data = now.strftime("%d/%m")
                 spend_entry = [user_state['category'], user_state['source'], user_state['amount'], data, comment]
-                write_data_to_file(spend_entry, message)
+                write_data_to_excel(spend_entry, message)
                 user_global_state[message.chat.id] = {'step': 'start'}
+                print(user_global_state)
 
 
         ###########################################################################################
 
-        def write_data_to_file(spend_entry, message):
-            with open('output.csv', mode='w', encoding='utf-8', newline='') as file:
-                writer = csv.writer(file, delimiter=';', quoting=csv.QUOTE_MINIMAL)
-                writer.writerow(spend_entry)
-                file.close()
+        def write_data_to_excel(spend_entry, message):
+            # Преобразуем данные в DataFrame
+            df = pd.DataFrame([spend_entry])
 
-                def write_data_to_excel():
-                    # Открываем файл CSV и читаем его содержимое
-                    with open('output.csv', 'r', encoding='utf-8') as csv_file:
-                        csv_reader = csv.reader(csv_file)
-                        csv_data = list(csv_reader)
-                        print(csv_data)
+            # Определяем имя листа и дату
+            now = datetime.datetime.now()
+            data = now.strftime("%b %y")
 
-                    # Открываем книгу Excel
-                    workbook = openpyxl.load_workbook(budget_file)
+            # Открываем книгу Excel
+            workbook = openpyxl.load_workbook(budget_file)
 
-                    # Получаем нужный лист
-                    now = datetime.datetime.now()
-                    data = now.strftime("%b %y")
-                    worksheet = workbook[data]
+            # Получаем нужный лист
+            worksheet = workbook[data]
 
-                    # Находим последнюю заполненную строку в таблице
-                    last_row = 5
-                    while worksheet.cell(row=last_row, column=17).value is not None:
-                        last_row += 1
+            # Находим последнюю заполненную строку в таблице
+            last_row = 5
+            while worksheet.cell(row=last_row, column=17).value is not None:
+                last_row += 1
 
-                    # Записываем данные в Excel-файл, начиная со следующей свободной ячейки в столбце A
-                    for row in csv_data:
-                        row_data = row[0].split(';')
-                        for col_index, cell_value in enumerate(row_data):
-                            if cell_value.isnumeric():
-                                worksheet.cell(row=last_row, column=col_index + 17, value=int(cell_value))
-                            else:
-                                worksheet.cell(row=last_row, column=col_index + 17, value=cell_value)
-                        last_row += 1
+            # Записываем данные в Excel-файл, начиная со следующей свободной ячейки
+            for row_index, row_data in df.iterrows():
+                for col_index, cell_value in enumerate(row_data):
+                    worksheet.cell(row=last_row, column=col_index + 17, value=cell_value)
+                last_row += 1
 
-                    # Сохраняем изменения в книге Excel
-                    workbook.save(budget_file)
-                    workbook.close()
-
-                write_data_to_excel()
-                bot.send_message(message.chat.id, "Спасибо, ваша трата успешно записана! Выберите следующее действие.",
-                                 reply_markup=keyboard_start)
-                os.remove('output.csv')
-                user_global_state[message.chat.id] = {'step': 'start'}
-                print(user_global_state)
-
+            # Сохраняем изменения в книге Excel
+            workbook.save(budget_file)
+            workbook.close()
+            bot.send_message(message.chat.id, "Спасибо, ваша трата успешно записана! Выберите следующее действие.", reply_markup=keyboard_start)
 
         def check_availability(message):
             try:
@@ -291,7 +267,6 @@ while attempt_count < max_attempts:
             except PermissionError:
                 bot.send_message(message.chat.id, "Файл открыт другой альпаськой, попробуй позже!")
                 user_global_state[message.chat.id] = {'step': 'start'}
-
 
         ###########################################################################################
 
